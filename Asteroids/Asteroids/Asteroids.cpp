@@ -12,8 +12,8 @@ using namespace sf;
 #include "AsteroidsState.h"
 #include "StartMenuState.h"
 
-const unsigned int WINDOW_WIDTH = 800;
-const unsigned int WINDOW_HEIGHT = 800;
+const unsigned int WINDOW_WIDTH = 1000;
+const unsigned int WINDOW_HEIGHT = 1000;
 
 
 int main()
@@ -37,14 +37,15 @@ int main()
 		}
 
 		AsteroidsState* nextState = gameState->Update(clock.restart().asSeconds());
+		if (window.isOpen()) {
+			if (nextState != nullptr) {
+				delete gameState;
+				gameState = nextState;
+			}
 
-		if (nextState != nullptr) {
-			delete gameState;
-			gameState = nextState;
+			gameState->Draw();
+			window.display();
 		}
-
-		gameState->Draw();
-		window.display();
 	}
 
 	return 0;

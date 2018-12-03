@@ -39,6 +39,7 @@ protected:
 	const float PI = 3.14159f;
 	const string FONT_PATH = "Assets/Games.ttf";
 	const int FONT_SIZE = 30;
+	const int BUCKET_COUNT = 9;
 
 	float fireTimer = 0.f;
 	int asteroidCount = 0;
@@ -46,10 +47,14 @@ protected:
 	int lives;
 	int score;
 	Font font;
+	int bucketWidth;
+	int bucketHeight;
+	bool spaceReleased = false;
 
 	Text scoreText;
 	Text livesText;
 
+	vector<GameObject*> buckets[9][9];
 	vector<GameObject*> gameObjects;
 	vector<Collision*> collisions;
 	Ship* ship;
@@ -63,12 +68,16 @@ protected:
 	GameObject* SpawnMediumAsteroid(Vector2f position, Vector2f velocity);
 	GameObject* SpawnSmallAsteroid(Vector2f position, Vector2f velocity);
 	Vector2f GetRandomAsteroidVelocity();
+	Vector2i GetBucketIndexes(GameObject* go);
+	void AddToBucket(GameObject* go, Vector2i indexes);
+	void RemoveFromBucket(GameObject* go, Vector2i indexes);
+	vector<GameObject*>* GetBucket(Vector2i indexes);
 	int GetAsteroidsSpawned() { return ASTEROID_SPAWN_MIN + level * ASTEROID_SPAWN_MULT; }
 	float Dot(Vector2f v1, Vector2f v2);
 	float Mag2(Vector2f v);
 
 public:
-	PlayState(RenderWindow* window, int level, int lives, int score);
+	PlayState(RenderWindow* window, int level, int score, int lives);
 	~PlayState();
 	virtual AsteroidsState* Update(float deltaTime);
 	virtual void Draw();

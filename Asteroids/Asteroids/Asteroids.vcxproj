@@ -150,7 +150,9 @@
     <ClCompile Include="AsteroidsState.cpp" />
     <ClCompile Include="Bullet.cpp" />
     <ClCompile Include="GameObject.cpp" />
+    <ClCompile Include="GameOverState.cpp" />
     <ClCompile Include="PlayState.cpp" />
+    <ClCompile Include="PreLevelState.cpp" />
     <ClCompile Include="Ship.cpp" />
     <ClCompile Include="StartMenuState.cpp" />
   </ItemGroup>
@@ -159,7 +161,9 @@
     <ClInclude Include="AsteroidsState.h" />
     <ClInclude Include="Bullet.h" />
     <ClInclude Include="GameObject.h" />
+    <ClInclude Include="GameOverState.h" />
     <ClInclude Include="PlayState.h" />
+    <ClInclude Include="PreLevelState.h" />
     <ClInclude Include="Ship.h" />
     <ClInclude Include="StartMenuState.h" />
   </ItemGroup>
