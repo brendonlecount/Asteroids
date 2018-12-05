@@ -9,7 +9,7 @@ class Asteroid : public GameObject {
 public:
 	Asteroid(RenderWindow* window, float radius, float mass, Vector2f position, Vector2f velocity, AsteroidSpawn asteroidsSpawned);
 	virtual void Update(float deltaTime);
-	virtual void OnCollide(bool destroysAsteroids);
+	virtual void OnCollide(bool destroysAsteroids, bool destroysShips);
 	virtual bool CollisionEnabled() const { return true; }
 	virtual bool IsStatic() const { return false; }
 	virtual bool IsDestroyed() const { return isDestroyed; }
@@ -17,4 +17,5 @@ public:
 	virtual bool IsShip() const { return false; }
 	virtual AsteroidSpawn GetAsteroidsSpawned() const { return asteroidsSpawned; }
 	virtual bool DestroysAsteroids() const { return false; }
+	virtual bool DestroysShips() const { return true; }
 };

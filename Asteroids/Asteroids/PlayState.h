@@ -12,6 +12,7 @@
 #include "AsteroidsState.h"
 #include "GameObject.h"
 #include "Ship.h"
+#include "Enemy.h"
 
 using namespace std;
 using namespace sf;
@@ -40,8 +41,10 @@ protected:
 	const string FONT_PATH = "Assets/Games.ttf";
 	const int FONT_SIZE = 30;
 	const int BUCKET_COUNT = 9;
+	const float ENEMY_FIRE_DELAY = 1.25f;
 
 	float fireTimer = 0.f;
+	float enemyFireTimer = 0.f;
 	int asteroidCount = 0;
 	int level;
 	int lives;
@@ -58,6 +61,7 @@ protected:
 	vector<GameObject*> gameObjects;
 	vector<Collision*> collisions;
 	Ship* ship;
+	Enemy* enemy;
 
 	bool IsColliding(GameObject* go1, GameObject* go2);
 	void ProcessCollisionList();
@@ -75,6 +79,7 @@ protected:
 	int GetAsteroidsSpawned() { return ASTEROID_SPAWN_MIN + level * ASTEROID_SPAWN_MULT; }
 	float Dot(Vector2f v1, Vector2f v2);
 	float Mag2(Vector2f v);
+	static Vector2f Normalize(Vector2f v);
 
 public:
 	PlayState(RenderWindow* window, int level, int score, int lives);

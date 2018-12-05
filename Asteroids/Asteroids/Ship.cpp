@@ -55,9 +55,11 @@ void Ship::Update(float deltaTime) {
 	ApplyVelocity(deltaTime);
 }
 
-void Ship::OnCollide(bool destroysAsteroids) {
-	deathTimer = DEATH_TIME;
-	deathBlinkTimer = 0.f;
+void Ship::OnCollide(bool destroysAsteroids, bool destroysShips) {
+	if (destroysShips) {
+		deathTimer = DEATH_TIME;
+		deathBlinkTimer = 0.f;
+	}
 }
 
 bool Ship::CollisionEnabled() const {

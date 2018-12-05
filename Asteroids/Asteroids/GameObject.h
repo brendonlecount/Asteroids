@@ -8,6 +8,7 @@
 #include <SFML/OpenGL.hpp>
 #include <SFML/Main.hpp>
 
+#include <vector>
 
 using namespace std;
 using namespace sf;
@@ -27,10 +28,11 @@ public:
 
 	GameObject(RenderWindow* window, float radius, float mass, Vector2f position, Vector2f velocity);
 	virtual void Update(float deltaTime) = 0;
-	virtual void OnCollide(bool destroysAsteroids) = 0;
+	virtual void OnCollide(bool destroysAsteroids, bool destroysShips) = 0;
 	virtual bool CollisionEnabled() const = 0;
 	virtual bool IsStatic() const = 0;
 	virtual bool DestroysAsteroids() const = 0;
+	virtual bool DestroysShips() const = 0;
 	virtual bool IsDestroyed() const = 0;
 	virtual bool IsAsteroid() const = 0;
 	virtual bool IsShip() const = 0;

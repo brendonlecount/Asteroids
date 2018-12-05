@@ -6,6 +6,8 @@
 #include <SFML/OpenGL.hpp>
 #include <SFML/Main.hpp>
 
+#include <math.h>
+
 #include "PlayState.h"
 #include "Ship.h"
 #include "Asteroid.h"
@@ -13,6 +15,9 @@
 #include "PreLevelState.h"
 #include "GameOverState.h"
 #include "StartMenuState.h"
+
+using namespace std;
+using namespace sf;
 
 PlayState::PlayState(RenderWindow* window, int level, int score, int lives) :
 AsteroidsState(window)
@@ -42,6 +47,11 @@ AsteroidsState(window)
 	ship = new Ship(window, extents / 2.f, Vector2f(0.f, 0.f));
 	gameObjects.push_back(ship);
 	AddToBucket(ship, GetBucketIndexes(ship));
+
+	enemy = new Enemy(window, extents / 2.f, Vector2f(0.f, 0.f));
+	gameObjects.push_back(enemy);
+	AddToBucket(enemy, GetBucketIndexes(enemy));
+
 	for (int i = 0; i < GetAsteroidsSpawned(); i++) {
 		GameObject* nextAsteroid = SpawnLargeAsteroid();
 		gameObjects.push_back(nextAsteroid);
@@ -63,12 +73,13 @@ AsteroidsState* PlayState::Update(float deltaTime) {
 	if (Keyboard::isKeyPressed(Keyboard::Escape)) {
 		return new StartMenuState(window);
 	}
+
 	if (fireTimer <= 0.f) {
 		if (Keyboard::isKeyPressed(Keyboard::Space)) {
 			if (spaceReleased) {
 				fireTimer = FIRE_DELAY;
 				Vector2f vBullet = BULLET_SPEED * Vector2f(sin(ship->GetAngle()), cos(ship->GetAngle()));
-				Bullet* bullet = new Bullet(window, ship->GetPosition(), ship->GetVelocity() + vBullet);
+				Bullet* bullet = new Bullet(window, ship->GetPosition(), ship->GetVelocity() + vBullet, true, true);
 				gameObjects.push_back(bullet);
 				AddToBucket(bullet, GetBucketIndexes(bullet));
 			}
@@ -79,6 +90,19 @@ AsteroidsState* PlayState::Update(float deltaTime) {
 	}
 	else {
 		fireTimer -= deltaTime;
+	}
+
+	if (enemy->CollisionEnabled()) {
+		if (enemyFireTimer <= 0) {
+			enemyFireTimer = ENEMY_FIRE_DELAY;
+			Vector2f vEnemyBullet = Normalize(ship->GetPosition() - enemy->GetPosition()) * BULLET_SPEED;
+			GameObject* enemyBullet = new Bullet(window, enemy->GetPosition(), vEnemyBullet, false, true);
+			gameObjects.push_back(enemyBullet);
+			AddToBucket(enemyBullet, GetBucketIndexes(enemyBullet));
+		}
+		else {
+			enemyFireTimer -= deltaTime;
+		}
 	}
 
 	for (int i = 0; i < gameObjects.size();) {
@@ -191,13 +215,23 @@ void PlayState::ProcessCollisionList() {
 		collisions[i]->go1->SetVelocity(v1Final);
 		collisions[i]->go2->SetVelocity(v2Final);
 
-		collisions[i]->go1->OnCollide(collisions[i]->go2->DestroysAsteroids());
-		collisions[i]->go2->OnCollide(collisions[i]->go1->DestroysAsteroids());
+		collisions[i]->go1->OnCollide(collisions[i]->go2->DestroysAsteroids(), collisions[i]->go2->DestroysShips());
+		collisions[i]->go2->OnCollide(collisions[i]->go1->DestroysAsteroids(), collisions[i]->go1->DestroysShips());
 		if (collisions[i]->go1->IsShip() || collisions[i]->go2->IsShip()) {
 			DeductLife();
 		}
 	}
 	ClearCollisions();
+}
+
+Vector2f PlayState::Normalize(Vector2f v) {
+	float length = sqrtf(v.x * v.x + v.y * v.y);
+	if (length > 0.f) {
+		return v / length;
+	}
+	else {
+		return Vector2f(1.f, 0.f);
+	}
 }
 
 void PlayState::AddCollision(GameObject* go1, GameObject* go2) {

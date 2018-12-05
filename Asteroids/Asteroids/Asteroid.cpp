@@ -10,7 +10,7 @@ void Asteroid::Update(float deltaTime) {
 	ApplyVelocity(deltaTime);
 }
 
-void Asteroid::OnCollide(bool destroysAsteroids) {
+void Asteroid::OnCollide(bool destroysAsteroids, bool destroysShips) {
 	if (destroysAsteroids) {
 		isDestroyed = true;
 	}

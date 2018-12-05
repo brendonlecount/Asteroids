@@ -149,6 +149,7 @@
     <ClCompile Include="Asteroids.cpp" />
     <ClCompile Include="AsteroidsState.cpp" />
     <ClCompile Include="Bullet.cpp" />
+    <ClCompile Include="Enemy.cpp" />
     <ClCompile Include="GameObject.cpp" />
     <ClCompile Include="GameOverState.cpp" />
     <ClCompile Include="PlayState.cpp" />
@@ -160,6 +161,7 @@
     <ClInclude Include="Asteroid.h" />
     <ClInclude Include="AsteroidsState.h" />
     <ClInclude Include="Bullet.h" />
+    <ClInclude Include="Enemy.h" />
     <ClInclude Include="GameObject.h" />
     <ClInclude Include="GameOverState.h" />
     <ClInclude Include="PlayState.h" />
