@@ -19,44 +19,13 @@
 using namespace std;
 using namespace sf;
 
-PlayState::PlayState(RenderWindow* window, int level, int score, int lives) :
+PlayState::PlayState(RenderWindow* window, int level) :
 AsteroidsState(window)
 {
 	this->level = level;
-	this->score = score;
-	this->lives = lives;
-	Vector2f extents = (Vector2f)window->getSize();
-
-	livesText.setPosition(extents.x * 0.25f, extents.y * 0.9f);
-	livesText.setCharacterSize(FONT_SIZE);
-
-	scoreText.setPosition(extents.x * 0.75f, extents.y * 0.9f);
-	scoreText.setCharacterSize(FONT_SIZE);
-
-	if (font.loadFromFile(FONT_PATH)) {
-		livesText.setFont(font);
-		scoreText.setFont(font);
-	}
-
-	SetText(&livesText, "Lives: " + to_string(lives));
-	SetText(&scoreText, "Score: " + to_string(score));
-
+	Vector2u extents = window->getSize();
 	bucketWidth = (int)extents.x / BUCKET_COUNT;
 	bucketHeight = (int)extents.y / BUCKET_COUNT;
-
-	ship = new Ship(window, extents / 2.f, Vector2f(0.f, 0.f));
-	gameObjects.push_back(ship);
-	AddToBucket(ship, GetBucketIndexes(ship));
-
-	enemy = new Enemy(window, extents / 2.f, Vector2f(0.f, 0.f));
-	gameObjects.push_back(enemy);
-	AddToBucket(enemy, GetBucketIndexes(enemy));
-
-	for (int i = 0; i < GetAsteroidsSpawned(); i++) {
-		GameObject* nextAsteroid = SpawnLargeAsteroid();
-		gameObjects.push_back(nextAsteroid);
-		AddToBucket(nextAsteroid, GetBucketIndexes(nextAsteroid));
-	}
 }
 
 
@@ -69,123 +38,9 @@ PlayState::~PlayState() {
 	}
 }
 
-AsteroidsState* PlayState::Update(float deltaTime) {
-	if (Keyboard::isKeyPressed(Keyboard::Escape)) {
-		return new StartMenuState(window);
-	}
 
-	if (fireTimer <= 0.f) {
-		if (Keyboard::isKeyPressed(Keyboard::Space)) {
-			if (spaceReleased) {
-				fireTimer = FIRE_DELAY;
-				Vector2f vBullet = BULLET_SPEED * Vector2f(sin(ship->GetAngle()), cos(ship->GetAngle()));
-				Bullet* bullet = new Bullet(window, ship->GetPosition(), ship->GetVelocity() + vBullet, true, true);
-				gameObjects.push_back(bullet);
-				AddToBucket(bullet, GetBucketIndexes(bullet));
-			}
-		}
-		else {
-			spaceReleased = true;
-		}
-	}
-	else {
-		fireTimer -= deltaTime;
-	}
 
-	if (enemy->CollisionEnabled()) {
-		if (enemyFireTimer <= 0) {
-			enemyFireTimer = ENEMY_FIRE_DELAY;
-			Vector2f vEnemyBullet = Normalize(ship->GetPosition() - enemy->GetPosition()) * BULLET_SPEED;
-			GameObject* enemyBullet = new Bullet(window, enemy->GetPosition(), vEnemyBullet, false, true);
-			gameObjects.push_back(enemyBullet);
-			AddToBucket(enemyBullet, GetBucketIndexes(enemyBullet));
-		}
-		else {
-			enemyFireTimer -= deltaTime;
-		}
-	}
 
-	for (int i = 0; i < gameObjects.size();) {
-		if (gameObjects[i]->IsDestroyed()) {
-			GameObject* newObject;
-			switch (gameObjects[i]->GetAsteroidsSpawned()) {
-			case GameObject::AsteroidSpawn::Medium:
-				for (int j = 0; j < ASTEROID_CHILD_COUNT; j++) {
-					newObject = SpawnMediumAsteroid(gameObjects[i]->GetPosition(), gameObjects[i]->GetVelocity());
-					gameObjects.push_back(newObject);
-					AddToBucket(newObject, GetBucketIndexes(newObject));
-				}
-				break;
-			case GameObject::AsteroidSpawn::Small:
-				for (int j = 0; j < ASTEROID_CHILD_COUNT; j++) {
-					newObject = SpawnSmallAsteroid(gameObjects[i]->GetPosition(), gameObjects[i]->GetVelocity());
-					gameObjects.push_back(newObject);
-					AddToBucket(newObject, GetBucketIndexes(newObject));
-				}
-				break;
-			}
-			if (gameObjects[i]->IsAsteroid()) {
-				asteroidCount--;
-				score += ASTEROID_POINTS;
-				SetText(&scoreText, "Score: " + to_string(score));
-			}
-			RemoveFromBucket(gameObjects[i], GetBucketIndexes(gameObjects[i]));
-			delete gameObjects[i];
-			gameObjects.erase(gameObjects.begin() + i);
-		}
-		else {
-			Vector2i currentBucket = GetBucketIndexes(gameObjects[i]);
-			gameObjects[i]->Update(deltaTime);
-			Vector2i newBucket = GetBucketIndexes(gameObjects[i]);
-			if (currentBucket != newBucket) {
-				RemoveFromBucket(gameObjects[i], currentBucket);
-				AddToBucket(gameObjects[i], newBucket);
-			}
-			i++;
-		}
-	}
-
-	for (int i1 = 0; i1 < BUCKET_COUNT; i1++) {
-		for (int j1 = 0; j1 < BUCKET_COUNT; j1++) {
-			for (int i2 = i1 - 1; i2 < i1 + 1; i2++) {
-				for (int j2 = j1 - 1; j2 < j1 + 1; j2++) {
-					vector<GameObject*>* bucket1 = GetBucket(Vector2i(i1, j1));
-					vector<GameObject*>* bucket2 = GetBucket(Vector2i(i2, j2));
-					for (int k = 0; k < bucket1->size(); k++) {
-						for (int l = 0; l < bucket2->size(); l++) {
-							if (IsColliding((*bucket1)[k], (*bucket2)[l])) {
-								AddCollision((*bucket1)[k], (*bucket2)[l]);
-							}
-						}
-					}
-				}
-			}
-		}
-	}
-
-	ProcessCollisionList();
-
-	if (asteroidCount <= 0) {
-		return new PreLevelState(window, level + 1, score + LEVEL_POINTS, lives);
-	}
-	else if (lives < 0) {
-		return new GameOverState(window, level, score);
-	}
-	else {
-		return nullptr;
-	}
-}
-
-void PlayState::Draw() {
-	window->clear();
-
-	window->draw(livesText);
-	window->draw(scoreText);
-
-	for (int i = 0; i < gameObjects.size(); i++) {
-		gameObjects[i]->Draw();
-	}
-}
 
 bool PlayState::IsColliding(GameObject* go1, GameObject* go2) {
 	if (go1->CollisionEnabled() && go2->CollisionEnabled()) {
@@ -217,9 +72,6 @@ void PlayState::ProcessCollisionList() {
 
 		collisions[i]->go1->OnCollide(collisions[i]->go2->DestroysAsteroids(), collisions[i]->go2->DestroysShips());
 		collisions[i]->go2->OnCollide(collisions[i]->go1->DestroysAsteroids(), collisions[i]->go1->DestroysShips());
-		if (collisions[i]->go1->IsShip() || collisions[i]->go2->IsShip()) {
-			DeductLife();
-		}
 	}
 	ClearCollisions();
 }
@@ -254,11 +106,6 @@ float PlayState::Dot(Vector2f v1, Vector2f v2) {
 
 float PlayState::Mag2(Vector2f v) {
 	return v.x * v.x + v.y * v.y;
-}
-
-void PlayState::DeductLife() {
-	lives--;
-	SetText(&livesText, "Lives: " + to_string(lives));
 }
 
 Vector2i PlayState::GetBucketIndexes(GameObject* go) {

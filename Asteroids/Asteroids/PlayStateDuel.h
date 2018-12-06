@@ -7,18 +7,21 @@
 #include <SFML/OpenGL.hpp>
 #include <SFML/Main.hpp>
 
-#include "AsteroidsState.h"
 #include "PlayState.h"
+#include "Ship.h"
 
-using namespace std;
-using namespace sf;
+class PlayStateDuel : public PlayState {
+	Ship* ship1;
+	Ship* ship2;
 
-class StartMenuState : public AsteroidsState {
-	Text singlePromptText;
-	Text duelPromptText;
+	Text lives1Text;
+	Text lives2Text;
+	float fire1Timer;
+	float fire2Timer;
+	bool spaceReleased = false;
 
 public:
-	StartMenuState(RenderWindow* window);
+	PlayStateDuel(RenderWindow* window, int level, int lives);
 	virtual AsteroidsState* Update(float deltaTime);
 	virtual void Draw();
 };

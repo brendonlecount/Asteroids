@@ -1,6 +1,6 @@
 #include "PreLevelState.h"
 #include "AsteroidsState.h"
-#include "PlayState.h"
+#include "PlayStateSingle.h"
 
 PreLevelState::PreLevelState(RenderWindow* window, int level, int score, int lives) :
 	AsteroidsState(window)
@@ -39,7 +39,7 @@ PreLevelState::PreLevelState(RenderWindow* window, int level, int score, int liv
 AsteroidsState* PreLevelState::Update(float deltaTime) {
 	if (Keyboard::isKeyPressed(Keyboard::Space)) {
 		if (spaceReleased) {
-			return new PlayState(window, level, score, lives);
+			return new PlayStateSingle(window, level, score, lives);
 		}	
 	}
 	else {

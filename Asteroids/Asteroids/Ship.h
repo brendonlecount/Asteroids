@@ -13,6 +13,9 @@
 class Ship : public GameObject {
 	float deathTimer;
 	float deathBlinkTimer = 0.f;
+	bool isPlayer2 = false;
+	int lives;
+
 	const float DEATH_TIME = 2.f;
 	const float DEATH_BLINK_TIME = 0.1f;
 	const float ROTATION_RATE = 180.f;
@@ -21,7 +24,7 @@ class Ship : public GameObject {
 	const float PI = 3.14159f;
 
 public:
-	Ship(RenderWindow* window, Vector2f position, Vector2f velocity);
+	Ship(RenderWindow* window, Vector2f position, Vector2f velocity, int lives, bool isPlayer2);
 	float GetAngle() const { return -shape.getRotation() * PI / 180.f; }
 	virtual void Update(float deltaTime);
 	virtual void OnCollide(bool destroysAsteroids, bool destroysShips);
@@ -34,4 +37,5 @@ public:
 	virtual bool DestroysAsteroids() const { return true; }
 	virtual bool DestroysShips() const { return true; }
 	virtual void Draw() const;
+	int GetLives() { return lives; }
 };

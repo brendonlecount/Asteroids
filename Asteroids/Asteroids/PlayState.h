@@ -43,31 +43,21 @@ protected:
 	const int BUCKET_COUNT = 9;
 	const float ENEMY_FIRE_DELAY = 1.25f;
 
-	float fireTimer = 0.f;
-	float enemyFireTimer = 0.f;
 	int asteroidCount = 0;
 	int level;
-	int lives;
-	int score;
 	Font font;
 	int bucketWidth;
 	int bucketHeight;
-	bool spaceReleased = false;
 
-	Text scoreText;
-	Text livesText;
 
 	vector<GameObject*> buckets[9][9];
 	vector<GameObject*> gameObjects;
 	vector<Collision*> collisions;
-	Ship* ship;
-	Enemy* enemy;
 
 	bool IsColliding(GameObject* go1, GameObject* go2);
 	void ProcessCollisionList();
 	void AddCollision(GameObject* go1, GameObject* go2);
 	void ClearCollisions() { collisions.clear(); }
-	void DeductLife();
 	GameObject* SpawnLargeAsteroid();
 	GameObject* SpawnMediumAsteroid(Vector2f position, Vector2f velocity);
 	GameObject* SpawnSmallAsteroid(Vector2f position, Vector2f velocity);
@@ -82,8 +72,6 @@ protected:
 	static Vector2f Normalize(Vector2f v);
 
 public:
-	PlayState(RenderWindow* window, int level, int score, int lives);
+	PlayState(RenderWindow* window, int level);
 	~PlayState();
-	virtual AsteroidsState* Update(float deltaTime);
-	virtual void Draw();
 };

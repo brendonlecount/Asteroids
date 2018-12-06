@@ -18,7 +18,6 @@ class GameOverState : public AsteroidsState {
 	Text gameOverText;
 	Text promptText;
 	Text levelText;
-	Font font;
 
 	const int FONT_SIZE_BIG = 64;
 	const int FONT_SIZE_SMALL = 30;

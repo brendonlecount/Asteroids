@@ -14,6 +14,11 @@ using namespace sf;
 class AsteroidsState {
 protected:
 	RenderWindow* window;
+	Font font;
+
+	const int FONT_SIZE_BIG = 64;
+	const int FONT_SIZE_SMALL = 30;
+	const string FONT_PATH = "Assets/Games.ttf";
 
 public:
 	AsteroidsState(RenderWindow* window) { this->window = window; }

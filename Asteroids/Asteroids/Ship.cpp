@@ -11,13 +11,18 @@
 using namespace std;
 using namespace sf;
 
-Ship::Ship(RenderWindow* window, Vector2f position, Vector2f velocity) :
+Ship::Ship(RenderWindow* window, Vector2f position, Vector2f velocity, int lives, bool isPlayer2) :
 GameObject(window, 20.f, 1.f, position, velocity)
 {
+	this->lives = lives;
+	this->isPlayer2 = isPlayer2;
 	deathTimer = DEATH_TIME;
 	shape.setRotation(180.f);
 	if (texture.loadFromFile("Assets/ship.jpg")) {
 		shape.setTexture(&texture);
+	}
+	if (isPlayer2) {
+		shape.setFillColor(Color::Green);
 	}
 }
 
@@ -35,17 +40,17 @@ void Ship::Update(float deltaTime) {
 		deathBlinkTimer = 0.f;
 	}
 
-	if (Keyboard::isKeyPressed(Keyboard::A)) {
+	if ((!isPlayer2 && Keyboard::isKeyPressed(Keyboard::A)) || (isPlayer2 && Keyboard::isKeyPressed(Keyboard::Left))) {
 		shape.rotate(-ROTATION_RATE * deltaTime);
 	}
-	if (Keyboard::isKeyPressed(Keyboard::D)) {
+	if ((!isPlayer2 && Keyboard::isKeyPressed(Keyboard::D)) || (isPlayer2 && Keyboard::isKeyPressed(Keyboard::Right))) {
 		shape.rotate(ROTATION_RATE * deltaTime);
 	}
-	if (Keyboard::isKeyPressed(Keyboard::W)) {
+	if ((!isPlayer2 && Keyboard::isKeyPressed(Keyboard::W)) || (isPlayer2 && Keyboard::isKeyPressed(Keyboard::Up))) {
 		Vector2f thrust = THRUST * Vector2f(sin(GetAngle()), cos(GetAngle()));
 		velocity += deltaTime * thrust / mass;
 	}
-	if (Keyboard::isKeyPressed(Keyboard::S)) {
+	if ((!isPlayer2 && Keyboard::isKeyPressed(Keyboard::S)) || (isPlayer2 && Keyboard::isKeyPressed(Keyboard::Down))) {
 		Vector2f thrust = THRUST * Vector2f(sin(GetAngle()), cos(GetAngle()));
 		velocity -= deltaTime * thrust / mass;
 	}
@@ -59,6 +64,7 @@ void Ship::OnCollide(bool destroysAsteroids, bool destroysShips) {
 	if (destroysShips) {
 		deathTimer = DEATH_TIME;
 		deathBlinkTimer = 0.f;
+		lives--;
 	}
 }
 
