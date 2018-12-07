@@ -15,14 +15,13 @@ class Particle {
 	RectangleShape shape;
 	Vector2f velocity;
 	float lifeTimer = 0.f;
-
-	const float LIFETIME = 0.5f;
-	const float START_SIZE = 4.f;
+	float startSize;
+	float lifeTime = 1.f;
 
 public:
 	Particle();
-	void SetActive(Vector2f position, Vector2f velocity);
+	void SetActive(Vector2f position, Vector2f velocity, float size, float lifeTime, Texture& texture, Color color);
 	void Update(float deltaTime);
-	bool IsActive() { return lifeTimer < LIFETIME; }
-	const RectangleShape& GetShape() { return shape; }
+	bool IsActive() const { return lifeTimer < lifeTime; }
+	const RectangleShape& GetShape() const { return shape; }
 };

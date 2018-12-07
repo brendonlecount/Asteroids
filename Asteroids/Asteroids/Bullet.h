@@ -8,7 +8,7 @@ class Bullet : public GameObject {
 	bool destroysAsteroids;
 	bool destroysShips;
 public:
-	Bullet(RenderWindow* window, Vector2f position, Vector2f velocity, bool destroysAsteroids, bool destroysShips);
+	Bullet(RenderWindow* window, Vector2f position, Vector2f velocity, float mass, bool destroysAsteroids, bool destroysShips);
 	virtual void Update(float deltaTime);
 	virtual void OnCollide(bool destroysAsteroids, bool destroysShips);
 	virtual bool CollisionEnabled() const { return true; }

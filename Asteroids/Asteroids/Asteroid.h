@@ -6,8 +6,9 @@ class Asteroid : public GameObject {
 	bool isDestroyed = false;
 	AsteroidSpawn asteroidsSpawned;
 
+
 public:
-	Asteroid(RenderWindow* window, float radius, float mass, Vector2f position, Vector2f velocity, AsteroidSpawn asteroidsSpawned);
+	Asteroid(RenderWindow* window, float radius, float mass, Vector2f position, Vector2f velocity, AsteroidSpawn asteroidsSpawned, Texture& texture);
 	virtual void Update(float deltaTime);
 	virtual void OnCollide(bool destroysAsteroids, bool destroysShips);
 	virtual bool CollisionEnabled() const { return true; }

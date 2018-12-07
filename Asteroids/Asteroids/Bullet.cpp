@@ -1,7 +1,7 @@
 #include "Bullet.h"
 
-Bullet::Bullet(RenderWindow* window, Vector2f position, Vector2f velocity, bool destroysAsteroids, bool destroysShips) :
-	GameObject(window, 2.f, 0.1f, position, velocity) {
+Bullet::Bullet(RenderWindow* window, Vector2f position, Vector2f velocity, float mass, bool destroysAsteroids, bool destroysShips) :
+	GameObject(window, 2.f, mass, position, velocity) {
 	this->destroysAsteroids = destroysAsteroids;
 	this->destroysShips = destroysShips;
 }

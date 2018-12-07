@@ -47,9 +47,10 @@ AsteroidsState* PlayStateDuel::Update(float deltaTime) {
 			if (spaceReleased) {
 				fire1Timer = FIRE_DELAY;
 				Vector2f vBullet = BULLET_SPEED * Vector2f(sin(ship1->GetAngle()), cos(ship1->GetAngle()));
-				Bullet* bullet = new Bullet(window, ship1->GetPosition(), ship1->GetVelocity() + vBullet, false, false);
+				Bullet* bullet = new Bullet(window, ship1->GetPosition(), ship1->GetVelocity() + vBullet, 1.f, false, false);
 				gameObjects.push_back(bullet);
 				AddToBucket(bullet, GetBucketIndexes(bullet));
+				shotSound.play();
 			}
 		}
 		else {
@@ -64,9 +65,10 @@ AsteroidsState* PlayStateDuel::Update(float deltaTime) {
 		if (Keyboard::isKeyPressed(Keyboard::RControl)) {
 			fire2Timer = FIRE_DELAY;
 			Vector2f vBullet = BULLET_SPEED * Vector2f(sin(ship2->GetAngle()), cos(ship2->GetAngle()));
-			Bullet* bullet = new Bullet(window, ship2->GetPosition(), ship2->GetVelocity() + vBullet, false, false);
+			Bullet* bullet = new Bullet(window, ship2->GetPosition(), ship2->GetVelocity() + vBullet, 1.f, false, false);
 			gameObjects.push_back(bullet);
 			AddToBucket(bullet, GetBucketIndexes(bullet));
+			shotSound.play();
 		}
 	}
 	else {
@@ -94,6 +96,8 @@ AsteroidsState* PlayStateDuel::Update(float deltaTime) {
 			}
 			if (gameObjects[i]->IsAsteroid()) {
 				asteroidCount--;
+				explosionSound.play();
+				explosions.push_back(new Explosion(window, gameObjects[i]->GetPosition(), gameObjects[i]->GetVelocity(), gameObjects[i]->GetMass()));
 			}
 			RemoveFromBucket(gameObjects[i], GetBucketIndexes(gameObjects[i]));
 			delete gameObjects[i];
@@ -131,10 +135,23 @@ AsteroidsState* PlayStateDuel::Update(float deltaTime) {
 
 	ProcessCollisionList();
 
+	for (int i = 0; i < explosions.size();) {
+		if (explosions[i]->GetActive()) {
+			explosions[i]->Update(deltaTime);
+			i++;
+		}
+		else {
+			delete explosions[i];
+			explosions.erase(explosions.begin() + i);
+		}
+	}
+
 	SetText(&lives1Text, "Lives: " + to_string(ship1->GetLives()));
 	SetText(&lives2Text, "Lives: " + to_string(ship2->GetLives()));
 
 	if (ship1->GetLives() < 0 || ship2->GetLives() < 0) {
+		ship1->StopThrusting();
+		ship2->StopThrusting();
 		return new DuelOverState(window, ship1->GetLives(), ship2->GetLives());
 	}
 	else {
@@ -150,5 +167,9 @@ void PlayStateDuel::Draw() {
 
 	for (int i = 0; i < gameObjects.size(); i++) {
 		gameObjects[i]->Draw();
+	}
+
+	for (int i = 0; i < explosions.size(); i++) {
+		explosions[i]->Draw();
 	}
 }

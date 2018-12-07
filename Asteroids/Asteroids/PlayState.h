@@ -13,6 +13,7 @@
 #include "GameObject.h"
 #include "Ship.h"
 #include "Enemy.h"
+#include "Explosion.h"
 
 using namespace std;
 using namespace sf;
@@ -42,7 +43,15 @@ protected:
 	const int FONT_SIZE = 30;
 	const int BUCKET_COUNT = 9;
 	const float ENEMY_FIRE_DELAY = 1.25f;
+	const string SHOT_SOUND_PATH = "Assets/9_mm_gunshot-mike-koenig-123.wav";
+	const string EXPLOSION_SOUND_PATH = "Assets/Bomb Explosion 1-SoundBible.com-980698079.wav";
+	const string ASTEROID_TEXTURE_PATH = "Assets/asteroid.jpg";
 
+	Sound shotSound;
+	SoundBuffer shotSoundBuffer;
+	Sound explosionSound;
+	SoundBuffer explosionSoundBuffer;
+	Texture asteroidTexture;
 	int asteroidCount = 0;
 	int level;
 	Font font;
@@ -53,6 +62,7 @@ protected:
 	vector<GameObject*> buckets[9][9];
 	vector<GameObject*> gameObjects;
 	vector<Collision*> collisions;
+	vector<Explosion*> explosions;
 
 	bool IsColliding(GameObject* go1, GameObject* go2);
 	void ProcessCollisionList();

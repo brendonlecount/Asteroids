@@ -37,6 +37,10 @@ PlayStateSingle::PlayStateSingle(RenderWindow* window, int level, int score, int
 		gameObjects.push_back(nextAsteroid);
 		AddToBucket(nextAsteroid, GetBucketIndexes(nextAsteroid));
 	}
+
+	if (winSoundBuffer.loadFromFile(WIN_SOUND_PATH)) {
+		winSound.setBuffer(winSoundBuffer);
+	}
 }
 
 AsteroidsState* PlayStateSingle::Update(float deltaTime) {
@@ -49,9 +53,10 @@ AsteroidsState* PlayStateSingle::Update(float deltaTime) {
 			if (spaceReleased) {
 				fireTimer = FIRE_DELAY;
 				Vector2f vBullet = BULLET_SPEED * Vector2f(sin(ship->GetAngle()), cos(ship->GetAngle()));
-				Bullet* bullet = new Bullet(window, ship->GetPosition(), ship->GetVelocity() + vBullet, true, true);
+				Bullet* bullet = new Bullet(window, ship->GetPosition(), ship->GetVelocity() + vBullet, 0.1f, true, true);
 				gameObjects.push_back(bullet);
 				AddToBucket(bullet, GetBucketIndexes(bullet));
+				shotSound.play();
 			}
 		}
 		else {
@@ -66,9 +71,10 @@ AsteroidsState* PlayStateSingle::Update(float deltaTime) {
 		if (enemyFireTimer <= 0) {
 			enemyFireTimer = ENEMY_FIRE_DELAY;
 			Vector2f vEnemyBullet = Normalize(ship->GetPosition() - enemy->GetPosition()) * BULLET_SPEED;
-			GameObject* enemyBullet = new Bullet(window, enemy->GetPosition(), vEnemyBullet, false, true);
+			GameObject* enemyBullet = new Bullet(window, enemy->GetPosition(), vEnemyBullet, 0.5f, false, true);
 			gameObjects.push_back(enemyBullet);
 			AddToBucket(enemyBullet, GetBucketIndexes(enemyBullet));
+			shotSound.play();
 		}
 		else {
 			enemyFireTimer -= deltaTime;
@@ -98,6 +104,8 @@ AsteroidsState* PlayStateSingle::Update(float deltaTime) {
 				asteroidCount--;
 				score += ASTEROID_POINTS;
 				SetText(&scoreText, "Score: " + to_string(score));
+				explosionSound.play();
+				explosions.push_back(new Explosion(window, gameObjects[i]->GetPosition(), gameObjects[i]->GetVelocity(), gameObjects[i]->GetMass()));
 			}
 			RemoveFromBucket(gameObjects[i], GetBucketIndexes(gameObjects[i]));
 			delete gameObjects[i];
@@ -135,12 +143,26 @@ AsteroidsState* PlayStateSingle::Update(float deltaTime) {
 
 	ProcessCollisionList();
 
+	for (int i = 0; i < explosions.size();) {
+		if (explosions[i]->GetActive()) {
+			explosions[i]->Update(deltaTime);
+			i++;
+		}
+		else {
+			delete explosions[i];
+			explosions.erase(explosions.begin() + i);
+		}
+	}
+
 	SetText(&livesText, "Lives: " + to_string(ship->GetLives()));
 
 	if (asteroidCount <= 0) {
+		winSound.play();
+		ship->StopThrusting();
 		return new PreLevelState(window, level + 1, score + LEVEL_POINTS, ship->GetLives());
 	}
 	else if (ship->GetLives() < 0) {
+		ship->StopThrusting();
 		return new GameOverState(window, level, score);
 	}
 	else {
@@ -156,5 +178,9 @@ void PlayStateSingle::Draw() {
 
 	for (int i = 0; i < gameObjects.size(); i++) {
 		gameObjects[i]->Draw();
+	}
+
+	for (int i = 0; i < explosions.size(); i++) {
+		explosions[i]->Draw();
 	}
 }

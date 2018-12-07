@@ -26,6 +26,14 @@ AsteroidsState(window)
 	Vector2u extents = window->getSize();
 	bucketWidth = (int)extents.x / BUCKET_COUNT;
 	bucketHeight = (int)extents.y / BUCKET_COUNT;
+	if (shotSoundBuffer.loadFromFile(SHOT_SOUND_PATH)) {
+		shotSound.setBuffer(shotSoundBuffer);
+	}
+	if (explosionSoundBuffer.loadFromFile(EXPLOSION_SOUND_PATH)) {
+		explosionSound.setBuffer(explosionSoundBuffer);
+	}
+	shotSound.setVolume(33);
+	asteroidTexture.loadFromFile(ASTEROID_TEXTURE_PATH);
 }
 
 
@@ -35,6 +43,9 @@ PlayState::~PlayState() {
 	}
 	for (int i = 0; i < collisions.size(); i++) {
 		delete collisions[i];
+	}
+	for (int i = 0; i < explosions.size(); i++) {
+		delete explosions[i];
 	}
 }
 
@@ -162,19 +173,19 @@ GameObject* PlayState::SpawnLargeAsteroid() {
 	asteroidCount++;
 	Vector2f position = Vector2f((float)(rand() % window->getSize().x), (float)(rand() % window->getSize().y));
 	Vector2f velocity = GetRandomAsteroidVelocity();
-	return new Asteroid(window, 40.f, 2.f, position, velocity, GameObject::AsteroidSpawn::Medium);
+	return new Asteroid(window, 40.f, 2.f, position, velocity, GameObject::AsteroidSpawn::Medium, asteroidTexture);
 }
 
 GameObject* PlayState::SpawnMediumAsteroid(Vector2f position, Vector2f velocity) {
 	asteroidCount++;
 	velocity += GetRandomAsteroidVelocity();
-	return new Asteroid(window, 20.f, 1.f, position, velocity, GameObject::AsteroidSpawn::Small);
+	return new Asteroid(window, 20.f, 1.f, position, velocity, GameObject::AsteroidSpawn::Small, asteroidTexture);
 }
 
 GameObject* PlayState::SpawnSmallAsteroid(Vector2f position, Vector2f velocity) {
 	asteroidCount++;
 	velocity += GetRandomAsteroidVelocity();
-	return new Asteroid(window, 10.f, 0.5f, position, velocity, GameObject::AsteroidSpawn::None);
+	return new Asteroid(window, 10.f, 0.5f, position, velocity, GameObject::AsteroidSpawn::None, asteroidTexture);
 }
 
 Vector2f PlayState::GetRandomAsteroidVelocity() {
